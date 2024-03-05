@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #535C91;
+        }
+
+        header {
+            background-color: #1B1A55;
+            color: #fff;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .todo-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+
+        }
+
+        form {
+            display: flex;
+            margin-bottom: 1rem;
+
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 0.5rem;
+            background-color: #1B1A55;
+            color: #fff;
+
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #1B1A55;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            color: #fff;
+
+        }
+
+        li {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;        }
+
+        .completed {
+            text-decoration: line-through;
+
+        }
+    </style>
+
+</head>
+
+<body>
+    <header>
+        <h1>To-Do List</h1>
+    </header>
+    <section class="todo-container">
+        <form id="todo-form">
+            <input type="text" id="todo-input" placeholder="Add new task..." required>
+            <button type="submit">Add</button>
+        </form>
+        <ul id="todo-list"></ul>
+    </section>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById("todo-form");
+            const input = document.getElementById("todo-input");
+            const todoList = document.getElementById("todo-list");
+
+            // Load tasks from local storage
+            const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+            // Function to render tasks
+            function renderTasks() {
+                todoList.innerHTML = "";
+                tasks.forEach((task, index) => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+        <input type="checkbox" ${task.completed ? "checked" : ""}>
+        <span class="${task.completed ? "completed" : ""}">${task.text}</span>
+        <button class="delete-btn">Delete</button>
+      `;
+                    todoList.appendChild(li);
+
+                    // Checkbox event listener
+                    const checkbox = li.querySelector("input[type='checkbox']");
+                    checkbox.addEventListener("change", () => {
+                        tasks[index].completed = checkbox.checked;
+                        saveTasks();
+                        renderTasks();
+                    });
+
+                    // Delete button event listener
+                    const deleteBtn = li.querySelector(".delete-btn");
+                    deleteBtn.addEventListener("click", () => {
+                        tasks.splice(index, 1);
+                        saveTasks();
+                        renderTasks();
+                    });
+                });
+            }
+
+            // Function to save tasks to local storage
+            function saveTasks() {
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+            }
+
+            // Add new task event listener
+            form.addEventListener("submit", function(event) {
+                event.preventDefault();
+                const text = input.value.trim();
+                if (text !== "") {
+                    tasks.push({
+                        text: text,
+                        completed: false
+                    });
+                    saveTasks();
+                    renderTasks();
+                    input.value = "";
+                }
+            });
+
+            // Initial render
+            renderTasks();
+        });
+    </script>
+</body>
+
+</html>
